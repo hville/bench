@@ -1,0 +1,24 @@
+{
+  "name": "@hugov/bench",
+  "type": "module",
+  "version": "0.0.1",
+  "description": "searches a parent node for `CODE` and `OUTPUT` elements.",
+  "main": "eval.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "sample-distribution": "^1.1.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hville/bench.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hville/bench/issues"
+  },
+  "homepage": "https://github.com/hville/bench#readme"
+}
