@@ -8,9 +8,11 @@
 
 ## Ideas
 
-* show the count by result types to easily spot `null`, `undefined`, `NaN` or other result types
+* show the count by result types to easily spot `null`, `undefined`, `NaN` or other expected and unexpected result types
 * use the more stable median (50%) and interquartiles (25%, 50%) instead of average, errors, significance and all
 * tests are time-based with a minimum of 9 runs. Slower function run fewer times
+* works in node and in browsers
+* minimal API
 * results are collected with the module `sample-distribution`
   * allows to generate all other stats without keeping millions of samples
 

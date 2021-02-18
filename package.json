@@ -1,21 +1,19 @@
 {
   "name": "@hugov/bench",
   "type": "module",
-  "version": "0.0.1",
-  "description": "searches a parent node for `CODE` and `OUTPUT` elements.",
-  "main": "eval.js",
+  "version": "0.1.1",
+  "description": "simple IQR based benchmark",
+  "main": "bench.js",
   "scripts": {
     "test": "node test.js",
     "prepublishOnly": "npm test",
     "pub": "npm publish --access public"
-
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "sample-distribution": "^1.1.0"
+    "sample-distribution": "^1.2.0"
   },
-  "devDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hville/bench.git"

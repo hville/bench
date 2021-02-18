@@ -36,7 +36,7 @@ function run(test, msEACH, before, after) {
 		stat.push( ms/1000 )
 
 		after?.(i++, val)
-		const kin = typeof val
+		const kin = Object.prototype.toString.call(val).slice(8,-1)
 		sums[kin] = ( sums[kin] ?? 0 ) + 1
 		msEACH -= P.now()
 	}
