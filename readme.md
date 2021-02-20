@@ -10,7 +10,8 @@
 
 * show the count by result types to easily spot `null`, `undefined`, `NaN` or other expected and unexpected result types
 * use the more stable median (50%) and interquartiles (25%, 50%) instead of average, errors, significance and all
-* tests are time-based with a minimum of 9 runs. Slower function run fewer times
+* tests are time-based with a minimum of 9 runs
+* tests are interleaved (a,b,c,a,b,c)
 * works in node and in browsers
 * minimal API
 * results are collected with the module `sample-distribution`
@@ -27,9 +28,9 @@ console.log( bench({
 
 /*
 {
-  a: D { msIQR: [ 13, 13, 14 ], msSUM: 339, number: 25 },
-  b: D { msIQR: [ 6, 6, 6 ], msSUM: 336, number: 52 },
-  c: D { msIQR: [ 41, 41, 42 ], msSUM: 373, bigint: 9 }
+  a: D { IQR: [ 13, 13, 14 ], number: 17 },
+  b: D { IQR: [ 6, 6, 7 ], number: 17 },
+  c: D { IQR: [ 41, 42, 43 ], bigint: 17 }
 }
 */
 ```

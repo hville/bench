@@ -1,7 +1,7 @@
 {
   "name": "@hugov/bench",
   "type": "module",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "simple IQR based benchmark",
   "main": "bench.js",
   "scripts": {

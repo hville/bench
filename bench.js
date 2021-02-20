@@ -1,9 +1,8 @@
 import D from 'sample-distribution'
 const P = typeof performance !== 'undefined' ? performance : {now() {
 	const hr = process.hrtime()
-	return hr[0]*1e6 + hr[1]/1000
+	return hr[0]*1000 + hr[1]/1_000_000
 }}
-
 
 /**
  * @param {Object<function>} tests with names
@@ -14,35 +13,31 @@ const P = typeof performance !== 'undefined' ? performance : {now() {
  */
 export default function(tests, sec=1, before, after) {
 	const keys = Object.keys(tests),
-				msEACH = sec * 1e6 / keys.length,
 				time = {}
-	for (const key of keys) time[key] = run(tests[key], msEACH, before, after)
-	return time
-}
-
-function run(test, msEACH, before, after) {
-	const sums = {},
-				stat = new D(21) // empirical distribution with 20 intervals, arbitrary size/precision compromise
-	let	i = 0,
-			msSUM = 0,
-			val
-	while (msEACH > 0 && i<9) { //9 runs give nice IQR at i=2,4,6
-		msEACH += P.now()
-		before?.(i)
-
-		let ms = -P.now()
-		val = test()
-		ms += P.now()
-		stat.push( ms/1000 )
-
-		after?.(i++, val)
-		const kin = Object.prototype.toString.call(val).slice(8,-1)
-		sums[kin] = ( sums[kin] ?? 0 ) + 1
-		msEACH -= P.now()
+	let msALL = sec * 1e3,
+			i=0
+	for (const key of keys) {
+		time[key] = new D(21) // empirical distribution with 20 intervals, arbitrary size/precision compromise
+		time[key].IQR = null
 	}
-	return Object.assign(stat, {
-		msIQR: [.25, .5, .75].map( v => Math.round(stat.Q(v)) ),
-		msSUM: Math.round(stat.E*stat.N),
-		...sums
-	})
+	while (msALL > 0 && i<9) { //min 9 runs give nice IQR at i=2,4,6
+		before?.(i)
+		for (const key of keys) {
+			const tst = tests[key],
+						res = time[key]
+			let ms = -P.now()
+			let val = tst()
+			ms += P.now()
+			time[key].push( ms )
+			msALL -= ms
+			const kin = Object.prototype.toString.call(val).slice(8,-1)
+			res[kin] = ( res[kin] ?? 0 ) + 1
+		}
+		after?.(i++, val)
+	}
+	for (const key of keys) {
+		const res = time[key]
+		res.IQR = [.25, .5, .75].map( p => Math.round(res.Q(p)) )
+	}
+	return time
 }
