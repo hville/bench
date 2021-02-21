@@ -13,7 +13,8 @@ const P = typeof performance !== 'undefined' ? performance : {now() {
  */
 export default function(tests, sec=1, before, after) {
 	const keys = Object.keys(tests),
-				time = {}
+				time = {},
+				m = keys.length
 	let msALL = sec * 1e3,
 			i=0
 	for (const key of keys) {
@@ -22,8 +23,9 @@ export default function(tests, sec=1, before, after) {
 	}
 	while (msALL > 0 && i<9) { //min 9 runs give nice IQR at i=2,4,6
 		before?.(i)
-		for (const key of keys) {
-			const tst = tests[key],
+		for (let j=0; j<m; ++j) {
+			const key = keys[ (j+i)%m ], //rotation so that the order changes
+						tst = tests[key],
 						res = time[key]
 			let ms = -P.now()
 			let val = tst()
@@ -35,7 +37,7 @@ export default function(tests, sec=1, before, after) {
 		}
 		after?.(i++, val)
 	}
-	for (const key of keys) {
+	for (const key of Object.keys(tests)) {
 		const res = time[key]
 		res.IQR = [.25, .5, .75].map( p => Math.round(res.Q(p)) )
 	}
