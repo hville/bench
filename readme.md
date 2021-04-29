@@ -2,20 +2,18 @@
 
 * `@param {Object<function>}` tests with names
 * `@param {number} [sec=1]` target testing time
-* `@param {before} before` each run
-* `@param {after} after` each run
-* `@returns {SampleDistribution}` with IQR of the testing times, total time and count by return types
+* `@returns {SampleDistribution}` with IQR of the testing times
 
 ## Ideas
 
-* show the count by result types to easily spot `null`, `undefined`, `NaN` or other expected and unexpected result types
-* use the more stable median (50%) and interquartiles (25%, 50%) instead of average, errors, significance and all
-* tests are time-based with a minimum of 9 runs
-* tests are interleaved (a,b,c,a,b,c)
+* show the type returned by function and enforce that they stay the same
+* use the more stable interquartiles (25%, 50%) range instead of average, errors, significance and all
+* tests are looped to get a minimum of 10 ms per run
+* tests are time-based with a minimum of 10 runs
+* tests are interleaved (a,b,c, b,c,a, ...)
 * works in node and in browsers
 * minimal API
-* results are collected with the module `sample-distribution`
-  * allows to generate all other stats without keeping millions of samples
+* results are collected with the module `sample-distribution` - distribution of results also available
 
 ```javascript
 import bench from './bench.js'
@@ -28,9 +26,9 @@ console.log( bench({
 
 /*
 {
-  a: D { IQR: [ 13, 13, 14 ], number: 17 },
-  b: D { IQR: [ 6, 6, 7 ], number: 17 },
-  c: D { IQR: [ 41, 42, 43 ], bigint: 17 }
+  a: D { IQR: [ 1.3379999995231628, 1.396824998781085 ], type: 'number' },
+  b: D { IQR: [ 0.7609437499195337, 0.7933312505483627 ], type: 'number' },
+  c: D { IQR: [ 4.723337499424815, 5.021324999630451 ], type: 'bigint' }
 }
 */
 ```
