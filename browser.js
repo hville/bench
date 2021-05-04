@@ -5,8 +5,7 @@ import D from 'sample-distribution'
 	return hr[0]*1000 + hr[1]/1_000_000
 }}
  */
-const P = typeof performance !== 'undefined' ? performance : (await import('perf_hooks')).performance,
-			MIN_MS = 10,
+const MIN_MS = 10,
 			MIN_SAMPLES = 10
 /**
  * @param {Object<function>} tests with names
@@ -38,9 +37,9 @@ export default function(tests, sec=1) {
 	return freq
 }
 function timeRuns(fcn, n, k) {
-	const t0 = P.now()
+	const t0 = performance.now()
 	while(n--) if (typeof fcn() !== k) return Infinity //minor check and use of the result
-	return P.now() - t0
+	return performance.now() - t0
 }
 function minRuns(fcn, ms, k) {
 	let n = 1,
