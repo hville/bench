@@ -13,7 +13,7 @@
 * tests are interleaved (a,b,c, b,c,a, ...)
 * works in node and in browsers
 * minimal API
-* results are collected with the module `sample-distribution` - distribution of results also available
+* results in ns are collected with the module `sample-distribution` - distribution of results also available
 
 ```javascript
 import bench from './bench.js'

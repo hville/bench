@@ -29,7 +29,7 @@ export default function(tests, sec=1) {
 		for (const k of keys) {
 			const ms = timeRuns(tests[k], size, kins[k])
 			if (ms === Infinity) freq[k].error = true
-			else freq[k].push( ms/size )
+			else freq[k].push( 1000*ms/size ) //all results in nanoseconds
 		}
 		keys.push(keys.shift()) //rotate in case it makes a difference
 	}
