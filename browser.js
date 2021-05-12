@@ -16,7 +16,7 @@ export default function(tests, sec=1) {
 	const keys = Object.keys(tests),
 				kins = Object.fromEntries(keys.map( k => [k, typeof tests[k]()] )),
 				reps = keys.map( k=> minRuns(tests[k], MIN_MS, kins[k]) ),
-				size = reps.reduce( (r,o) => Math.max(r, o.n), 0 ),
+				size = Math.round( reps.reduce( (r,o) => r + o.n, 0 ) / reps.length ),
 				time = size * reps.reduce( (f,o) => f+o.t/o.n, 0 ),
 				freq = {}
 	let take = Math.ceil( Math.max(MIN_SAMPLES, sec * 1e3 / time) )
