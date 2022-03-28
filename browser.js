@@ -1,49 +1,68 @@
 import D from 'sample-distribution'
 
-/* const P = typeof performance !== 'undefined' ? performance : {now() {
-	const hr = process.hrtime()
-	return hr[0]*1000 + hr[1]/1_000_000
-}}
- */
-const MIN_MS = 10,
-			MIN_SAMPLES = 10
+//TODO constant pool size means that a very slow function will run too long and a fast one not long enough
+
+const SAMPLES = 13 // min for IQR
 /**
- * @param {Object<function>} tests with names
- * @param {number} [sec=1] target testing time
+ * @param {Object<function>} tests object with test names as keys
+ * @param {number} [sec=2] target total testing time
  * @returns {SampleDistribution} with IQR of the testing times, total time and count by return types
  */
-export default function(tests, sec=1) {
-	const keys = Object.keys(tests),
-				kins = Object.fromEntries(keys.map( k => [k, typeof tests[k]()] )),
-				reps = keys.map( k=> minRuns(tests[k], MIN_MS, kins[k]) ),
-				size = Math.round( reps.reduce( (r,o) => r + o.n, 0 ) / reps.length ),
-				time = size * reps.reduce( (f,o) => f+o.t/o.n, 0 ),
-				freq = {}
-	let take = Math.ceil( Math.max(MIN_SAMPLES, sec * 1e3 / time) )
-	for (const k of keys) {
-		freq[k] = new D(take)
-		freq[k].IQR = null
-		freq[k].type = kins[k]
+export default async function(tests, msPerBatch=40) { // 40ms to compensate for the 1ms rounding in browsers
+	const testNames = Object.keys(tests),
+				testTypes = {},
+				testTimes = {},
+				testSyncs = {}
+
+	// initiation
+	let poolSize = 0
+	for (const k of testNames) {
+		testTimes[k] = new D(SAMPLES)
+		const result = tests[k]()
+		testSyncs[k] = !result?.then
+		testTypes[k] = typeof await result
+		poolSize += testSyncs[k] ? getPool(tests[k], testTypes[k], msPerBatch) : await getPool_(tests[k], testTypes[k], msPerBatch)
 	}
-	while(take--) {
-		for (const k of keys) {
-			const ms = timeRuns(tests[k], size, kins[k])
-			if (ms === Infinity) freq[k].error = true
-			else freq[k].push( 1000*ms/size ) //all results in nanoseconds
+	poolSize = Math.round( poolSize / testNames.length )
+
+	// benchmark by batch with rotations
+	let sampleSize = SAMPLES
+	while(sampleSize--) {
+		for (const k of testNames) {
+			const ms = testSyncs[k] ? timeRuns(tests[k], poolSize, testTypes[k]) : await timeRuns_(tests[k], poolSize, testTypes[k])
+			if (ms === Infinity) testTimes[k].error = 'wrong return type'
+			else testTimes[k].push( ms/poolSize )
 		}
-		keys.push(keys.shift()) //rotate in case it makes a difference
+		//rotate order of tests
+		testNames.push(testNames.shift())
 	}
-	for (const k of keys) freq[k].IQR = [.25, .75].map( p => freq[k].Q(p) )
-	return freq
+
+	for (const k of testNames) {
+		testTimes[k].Q1 = testTimes[k].Q(.25)
+		testTimes[k].Q3 = testTimes[k].Q(.75)
+	}
+	return testTimes
 }
+
 function timeRuns(fcn, n, k) {
 	const t0 = performance.now()
 	while(n--) if (typeof fcn() !== k) return Infinity //minor check and use of the result
 	return performance.now() - t0
 }
-function minRuns(fcn, ms, k) {
+async function timeRuns_(fcn, n, k) {
+	const t0 = performance.now()
+	while(n--) if (typeof await fcn() !== k) return Infinity //minor check and use of the result
+	return performance.now() - t0
+}
+function getPool(testFunction, testType, msPerBatch) {
 	let n = 1,
-			t = 0
-	while ( ms > (t=timeRuns(fcn, n, k)) ) n *= 2
-	return {n, t}
+			t = timeRuns(testFunction, n, testType)
+	while ( msPerBatch > t ) t += timeRuns(testFunction, n *= 2, testType)
+	return 2*n - 1 //sum of n + n/2 + n/4 + ... + 1
+}
+async function getPool_(testFunction, testType, msPerBatch) {
+	let n = 1,
+			t = await timeRuns_(testFunction, n, testType)
+	while ( msPerBatch > t ) t += await timeRuns_(testFunction, n *= 2, testType)
+	return 2*n - 1 //sum of n + n/2 + n/4 + ... + 1
 }

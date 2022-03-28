@@ -7,28 +7,29 @@
 ## Ideas
 
 * show the type returned by function and enforce that they stay the same
-* use the more stable interquartiles (25%, 50%) range instead of average, errors, significance and all
-* tests are looped to get a minimum of 10 ms per run
-* tests are time-based with a minimum of 10 runs
-* tests are interleaved (a,b,c, b,c,a, ...)
+* use the more stable interquartiles (25%, 75%) range instead of average, errors, significance and all
+* pooled tests to get a minimum of 40 ms per run to compensate for the 1ms timer rounding in browsers
+* 13 samples per tests
+* tests are interleaved (a,b,c, b,c,a, ...) 13 times
 * works in node and in browsers
-* minimal API
-* results in ns are collected with the module `sample-distribution` - distribution of results also available
+* results in ms are collected with the module `sample-distribution` for additional statistical info
+* tests returning a `thenable` are treated as async
 
 ```javascript
-import bench from './bench.js'
+import bench from '@hugov/bench.js'
 
 console.log( bench({
-  a() { let s=1; for(let i=0; i<1e6; ++i) s += Math.round(i * Math.random()); return s },
-  b() { let s=1; for(let i=0; i<1e6; ++i) s += Math.floor(i * Math.random()); return s },
-  c() { let s=1n;for(let i=0; i<1e6; ++i) s += BigInt(Math.floor(i * Math.random())); return s },
+  round() { let s=1; for(let i=0; i<n; ++i) s += Math.round(i * Math.random()); return s },
+  floor() { let s=1; for(let i=0; i<n; ++i) s += Math.floor(i * Math.random()); return s },
+  BgInt() { let s=1n;for(let i=0; i<n; ++i) s += BigInt(Math.floor(i * Math.random())); return s },
+  async() { let s=1; for(let i=0; i<n; ++i) s += i * Math.random(); return Promise.resolve(s) },
 }) )
-
 /*
 {
-  a: D { IQR: [ 1.3379999995231628, 1.396824998781085 ], type: 'number' },
-  b: D { IQR: [ 0.7609437499195337, 0.7933312505483627 ], type: 'number' },
-  c: D { IQR: [ 4.723337499424815, 5.021324999630451 ], type: 'bigint' }
+  round: D { Q1: 1.30807211550955, Q3: 1.39486153824971 },
+  floor: D { Q1: 0.64940769225358, Q3: 0.69745576911820 },
+  BgInt: D { Q1: 4.29924519202457, Q3: 4.40980865390828 },
+  async: D { Q1: 0.66251730761275, Q3: 0.69817403804224 }
 }
 */
 ```
