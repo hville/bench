@@ -3,7 +3,7 @@
   "type": "module",
   "main": "main.js",
   "browser": "browser.js",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "simple IQR based benchmark",
 
   "scripts": {
@@ -13,9 +13,7 @@
   },
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "sample-distribution": "^1.2.0"
-  },
+  "dependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/hville/bench.git"

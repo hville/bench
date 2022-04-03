@@ -6,7 +6,7 @@
  */
 export default async function(tests, POOL_MS=50, Q1_PAD=3) {
 	const testNames = Object.keys(tests),
-				POOLQTY = 3*Q1_PAD + 1,
+				POOLQTY = 4*Q1_PAD + 1,
 				testdata = {}
 
 	// initiation
