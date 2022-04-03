@@ -1,18 +1,16 @@
 # @hugov/bench
 
 * `@param {Object<function>}` tests with names
-* `@param {number} [sec=1]` target testing time
-* `@returns {SampleDistribution}` with IQR of the testing times
+* `@returns {Array}` IQR of the test ops/sec (Hz)
 
 ## Ideas
 
 * show the type returned by function and enforce that they stay the same
-* use the more stable interquartiles (25%, 75%) range instead of average, errors, significance and all
-* pooled tests to get a minimum of 40 ms per run to compensate for the 1ms timer rounding in browsers
-* 13 samples per tests
+* pooled tests to get a minimum of 100 ms per run to compensate for the 1ms timer rounding in browsers
+* use the more stable interquartiles (25%, 75%) range instead of average, errors, significance and all (IQR of means)
+* 2 initiation + 13 samples per tests
 * tests are interleaved (a,b,c, b,c,a, ...) 13 times
 * works in node and in browsers
-* results in ms are collected with the module `sample-distribution` for additional statistical info
 * tests returning a `thenable` are treated as async
 
 ```javascript
@@ -26,10 +24,10 @@ console.log( bench({
 }) )
 /*
 {
-  round: D { Q1: 1.30807211550955, Q3: 1.39486153824971 },
-  floor: D { Q1: 0.64940769225358, Q3: 0.69745576911820 },
-  BgInt: D { Q1: 4.29924519202457, Q3: 4.40980865390828 },
-  async: D { Q1: 0.66251730761275, Q3: 0.69817403804224 }
+  round [ 698.2115811027405, 728.5266761717111 ]
+  floor [ 1359.9237112740352, 1451.3105333209317 ]
+  BgInt [ 208.47643228500698, 229.22407644875574 ]
+  async [ 1404.675757736992, 1512.2598554846109 ]
 }
 */
 ```
