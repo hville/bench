@@ -1,15 +1,17 @@
 # @hugov/bench
 
 * `@param {Object<function>}` tests with names
+* `@param {number} [POOL_MS=50]` nominal duration of each pooled sample to compensate for the 1ms rounding in browsers
+* `@param {number} [Q1_PAD=3]` dropped min & max sample at each tail
 * `@returns {Array}` IQR of the test ops/sec (Hz)
 
 ## Ideas
 
-* show the type returned by function and enforce that they stay the same
-* pooled tests to get a minimum of 100 ms per run to compensate for the 1ms timer rounding in browsers
-* use the more stable interquartiles (25%, 75%) range instead of average, errors, significance and all (IQR of means)
-* 2 initiation + 13 samples per tests
+* pooled tests to get a minimum ms per run to compensate for the 1ms timer rounding in browsers
+* use the more stable quartiles (25%, 50%, 75%) instead of averages, errors, significance, tests and all (median of means)
 * tests are interleaved (a,b,c, b,c,a, ...) 13 times
+* use the type returned by function and enforce that they stay the same
+* 1 initiation + (4*Q1_PAD+1) samples per tests
 * works in node and in browsers
 * tests returning a `thenable` are treated as async
 
@@ -23,11 +25,9 @@ console.log( bench({
   async() { let s=1; for(let i=0; i<n; ++i) s += i * Math.random(); return Promise.resolve(s) },
 }) )
 /*
-{
-  round [ 698.2115811027405, 728.5266761717111 ]
-  floor [ 1359.9237112740352, 1451.3105333209317 ]
-  BgInt [ 208.47643228500698, 229.22407644875574 ]
-  async [ 1404.675757736992, 1512.2598554846109 ]
-}
+round: [ 687.4248132388417, 711.5974570795415, 735.2896122182034 ],
+floor: [ 1387.5900040353163, 1494.2277338460472, 1521.2109724349912 ],
+BgInt: [ 216.59789689855094, 229.64529369942758, 238.51599686383554 ],
+async: [ 1456.8066804053635, 1486.2027712494223, 1560.606028547393 ]
 */
 ```
