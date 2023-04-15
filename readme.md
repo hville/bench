@@ -1,7 +1,7 @@
 # @hugov/bench
 
 * `@param {Object<function>}` tests with names
-* `@param {number} [POOL_MS=50]` nominal duration of each pooled sample to compensate for the 1ms rounding in browsers
+* `@param {number} [POOL_MS=50*minMS]` nominal duration of each pooled sample to compensate for system precision rounding
 * `@param {number} [Q1_PAD=3]` dropped min & max sample at each tail
 * `@returns {Array}` IQR of the test ops/sec (Hz)
 
@@ -9,9 +9,9 @@
 
 * pooled tests to get a minimum ms per run to compensate for the 1ms timer rounding in browsers
 * use the more stable quartiles (25%, 50%, 75%) instead of averages, errors, significance, tests and all (median of means)
-* tests are interleaved (a,b,c, b,c,a, ...) 13 times
+* tests are interleaved (a,b,c, b,c,a, ...) `4*Q1_PAD+1` times *(default 13 times)*
 * use the type returned by function and enforce that they stay the same
-* 1 initiation + (4*Q1_PAD+1) samples per tests
+* 1 initiation + `4*Q1_PAD+1` samples per tests
 * works in node and in browsers
 * tests returning a `thenable` are treated as async
 
