@@ -1,4 +1,4 @@
-import bench from './main.js'
+import bench from './index.js'
 
 async function test(testrunner, label, tests) {
 	let t = performance.now()

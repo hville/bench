@@ -41,7 +41,6 @@ export default async function(tests, POOL_MS = getMinMS() * 50, Q1_PAD=3) {
 	return results
 }
 
-
 async function run(data, POOL_MS) {
 	if (!data.error) {
 		const ms = await data.get_ms(data.test, data.pool, data.type)
@@ -50,7 +49,7 @@ async function run(data, POOL_MS) {
 			data.means.push(1000 * data.pool/ms) // hz sample
 			data.pool = Math.ceil( data.pool*POOL_MS/ms ) // adjust pool size to the target ms
 		}
-		else if (data.pool *= 2 >= Number.MAX_SAFE_INTEGER) data.error = 'test function too fast'
+		else if ((data.pool *= 2) >= Number.MAX_SAFE_INTEGER) data.error = 'test function too fast'
 		else run(data, POOL_MS)
 	}
 }
