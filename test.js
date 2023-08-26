@@ -9,6 +9,12 @@ async function test(testrunner, label, tests) {
 }
 
 const n = 1e6
+test(bench,  `readme example`,{
+	round: i => Math.round(i+0.5),
+	floor: i => Math.floor(i+0.5),
+	BgInt: i => BigInt(i),
+	async: i => Promise.resolve(i),
+})
 test(bench,  `slow ${n.toExponential(0)}`,{
 	round() { let s=1; for(let i=0; i<n; ++i) s += Math.round(i * Math.random()); return s },
 	floor() { let s=1; for(let i=0; i<n; ++i) s += Math.floor(i * Math.random()); return s },
@@ -24,11 +30,17 @@ test(bench,  'async',{
 	constRandom() { return Promise.resolve(Math.random()) }
 })
 test(bench,  'cast',{
-	ob1() { const o={a:0,b:1}; o.a.delete; return o},
-	ob2() { const o={}; o.a=0; o.b=1; o.a.delete; return o},
-	nul() { const o=Object.create(null); o.a=0; o.b=1; o.a.delete; return o},
-	map() { const m=new Map; m.set('a',0); m.set('b',1); m.delete('a'); return m},
-	ob_() { const o={a:0,b:1}; o.a.delete; return Promise.resolve(o)},
+	ob1(k) { const o={a:0,b:k}; o.a.delete; return o},
+	ob2(k) { const o={}; o.a=0; o.b=k; o.a.delete; return o},
+	nul(k) { const o=Object.create(null); o.a=0; o.b=k; o.a.delete; return o},
+	map(k) { const m=new Map; m.set('a',0); m.set('b',k); m.delete('a'); return m},
+	ob_(k) { const o={a:0,b:k}; o.a.delete; return Promise.resolve(o)},
+})
+test(bench,  'constants',{
+	constUndefined() { return },
+	constNull() { return null },
+	constNumber() { return 1 },
+	constObject() { return {} }
 })
 test(bench,  'constants',{
 	constUndefined() { return },

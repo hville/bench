@@ -11,12 +11,13 @@ export default async function(tests, POOL_MS = getMinMS() * 50, Q1_PAD=3) {
 
 	// initiation
 	for (const k of testNames) {
-		const sample_ = tests[k]()
+		const sample_ = tests[k](0)
 		testdata[k] = {
 			test: tests[k],
 			type: typeof await sample_,
 			pool: 1,
 			means: [],
+			runs: 0,
 			get_ms: sample_?.then ? get_ms_async : get_ms_sync
 		}
 		await run(testdata[k], POOL_MS) // first pool size
@@ -43,7 +44,7 @@ export default async function(tests, POOL_MS = getMinMS() * 50, Q1_PAD=3) {
 
 async function run(data, POOL_MS) {
 	if (!data.error) {
-		const ms = await data.get_ms(data.test, data.pool, data.type)
+		const ms = await data.get_ms(data.test, data.type, data.runs, data.runs+=data.pool )
 		if (ms === Infinity) data.error = 'inconsistent return type'
 		else if (ms > 0) {
 			data.means.push(1000 * data.pool/ms) // hz sample
@@ -58,13 +59,14 @@ function getMinMS (r = performance.now(), t=r) {
 	while(t <= r) t = performance.now()
 	return t-r
 }
-function get_ms_sync(fcn, n, type) {
+function get_ms_sync(fcn, type, i, j) {
+	if ( j== null) throw Error
 	const t0 = performance.now()
-	while(n--) if (typeof fcn() !== type) return Infinity //minor check and use of the result
+	while(i<j) if (typeof fcn(i++) !== type) return Infinity //minor check and use of the result
 	return Promise.resolve(performance.now() - t0)
 }
-async function get_ms_async(fcn, n, type) {
+async function get_ms_async(fcn, type, i, j) {
 	const t0 = performance.now()
-	while(n--) if (typeof await fcn() !== type) return Infinity //minor check and use of the result
+	while(i<j) if (typeof await fcn(i++) !== type) return Infinity //minor check and use of the result
 	return performance.now() - t0
 }
